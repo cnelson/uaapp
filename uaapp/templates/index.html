@@ -1,0 +1,6 @@
+<h2> Select a user to migrate to {{target_idp}}</h2>
+<ul>
+{% for user in users %}
+	<li><a href="{{url_for('migrate_confirm', user_id=user.id)}}">{{user.userName}}</a></li>
+{% endfor %}
+</ul>
