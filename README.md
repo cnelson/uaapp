@@ -1,5 +1,5 @@
 # UAA Plus Plus
-## Utilites for UAA
+## Utilities for UAA
 
 Currently this provides the ability to migrate a user from UAA to Okta IDP.
 
