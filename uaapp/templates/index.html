@@ -1,6 +1,10 @@
-<h2> Select a user to migrate to {{target_idp}}</h2>
-<ul>
+{% extends "_layout.html" %}
+
+{% block content %}
+<div>
+<h1> Select a user to migrate to {{target_idp}}</h1>
 {% for user in users %}
-	<li><a href="{{url_for('migrate_confirm', user_id=user.id)}}">{{user.userName}}</a></li>
+	<a class="island-button" href="{{url_for('migrate_confirm', user_id=user.id)}}">{{user.userName}}</a>
 {% endfor %}
-</ul>
+</div>
+{% endblock %}

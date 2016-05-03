@@ -1,4 +1,7 @@
+{% extends "_layout.html" %}
+
+{% block content %}
 <h2>Successfully migrated {{user.userName}} to {{user.origin}}</h2>
 
 <a href="{{url_for('index')}}">Migrate Another User?</a>
-
+{% endblock %}

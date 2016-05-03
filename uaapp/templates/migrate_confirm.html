@@ -1,11 +1,15 @@
-<p>Are you sure you want to migrate {{user.userName}} from UAA to {{target_idp}}?</p>
+{% extends "_layout.html" %}
+
+{% block content %}
+<h2>Are you sure you want to migrate {{user.userName}} from UAA to {{target_idp}}?</h2>
 
 <form method="post" action="{{url_for('migrate')}}">
 <input type="hidden" name="user_id" value="{{user.id}}" />
-<input type="submit" value="Migrate User" />
+<input class="island-button" type="submit" value="Migrate User" />
 </form>
 
 
 <form method="get" action="{{url_for('index')}}">
-<input type="submit" value="Cancel Migration" />
+<input  class="island-button" type="submit" value="Cancel Migration" />
 </form>
+{% endblock %}
