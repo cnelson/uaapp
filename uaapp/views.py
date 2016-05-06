@@ -30,7 +30,8 @@ def confirm():
     for uid in request.form.getlist('user_ids'):
         users.append(g.uaac.get_user(uid))
 
-    return render_template('confirm.html',
+    return render_template(
+        'confirm.html',
         users=users,
         userids=[x['id'] for x in users],
         source_idp=request.form['source_idp'],
@@ -40,9 +41,3 @@ def confirm():
         subject=subject,
         template=template
     )
-
-    return """
-    Users: {4}<br>
-    send_email: {2} ({0}, {1})<br>
-    provision: {3}<br>
-    """.format(subject, template, send_email, provision, user_ids)
