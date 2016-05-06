@@ -1,11 +1,131 @@
 {% extends "_layout.html" %}
 
 {% block content %}
-{{idps}}
 <div>
-<h1> Select a user to migrate to {{target_idp}}</h1>
-{% for user in users %}
-	<a class="island-button" href="{{url_for('migrate_confirm', user_id=user.id)}}">{{user.userName}}</a>
+
+<p>
+Migrate users from the 
+<select name="source_idp">
+{% for idp in idps %}
+<option value="{{idp.originKey}}">{{idp.originKey}}</option>
 {% endfor %}
+</select>
+ IDP who's email address has the domain 
+<input style="display: inline-block" name="domain" placeholder='example.com'/>
+to the 
+<select name="target_idp">
+{% for idp in idps %}
+<option value="{{idp.originKey}}">{{idp.originKey}}</option>
+{% endfor %}
+</select>
+IDP
+</p>
+
+<h3>Users to be migrated:</h3>
+<form method="post" action="{{url_for('ui.confirm')}}">
+<div id="users-to-migrate"></div>
+
+<h3>Provision a new account for them in:</h3>
+<select name="provision">
+{% for p in providers %}
+<option value="">Don't provision an account</option>
+<option value="{{p}}">{{p}}</option>
+{% endfor %}
+</select>
+
+<h3>Send a notification email after migration:</h3>
+
+<div class="email">
+<input style="display: inline-block; width: 600px;" name="subject" placeholder="Enter a subject to send an email" />
+<div id="compose">
+<div>
+<h4 style="display: inline-block; width: 400px;">Template</h4>
+<h4 style="display: inline-block; width: 400px;">Preview</h4>
 </div>
+<div>
+<textarea name="template">{% raw %}Hello {{user.userName}},
+
+You have been migrated to a new IDP...
+{% endraw %}</textarea>
+<textarea id="preview" readonly=""></textarea>
+</div>
+<p>
+	You can use <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2 template syntax</a> to customize the notifcation for each user.
+	The <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#create-a-user-post-users">entire UAA user object</a> is available to you.
+</p>
+<p>The preview is rendered based on the first user to be migrated but when sent it will be customized for each user.</p>
+
+</div>
+</div>
+
+<input class="island-button" type="submit" value="Migrate Users" />
+</form>
+
+<script>
+twemoji.size = '16x16'
+var source_idp = $("SELECT[name='source_idp']");
+var domain = $("INPUT[name='domain']");
+
+var subject = $("INPUT[name='subject']");
+var template = $("TEXTAREA[name='template']");
+var preview = $("#preview");
+
+function render_preview() {
+
+	if (subject.val().length > 0) {
+		$('#compose').show()
+	} else {
+		$('#compose').hide()
+		return;
+	}
+
+	data = {
+		'id': $('#users-to-migrate').find('INPUT[type="hidden"]:first').val(),
+		'subject': subject.val(),
+		'body': template.val()
+	}
+
+	$.post('{{url_for('api_v1.email_user')}}', data, function(result) {
+		preview.val(result);
+	})
+}
+
+function query() {
+	var data = {'origin': source_idp.val()};
+
+	if (domain.val().length > 1) {
+		data.domain = domain.val()
+	}
+
+	console.log(data)
+	$.get('{{url_for('api_v1.list_users')}}', data, function(results) {
+		$('#users-to-migrate').empty();
+
+		$.each(results.resources, function(i, user) {
+			$('#users-to-migrate').append(
+				$('<div class="user"></div>').append(
+					$('<span/>').text(user.userName).css('display', 'inline-block')
+				).append(
+					$('<input type="hidden" name="user_ids">').val(user.id)
+				).prepend(
+					$(twemoji.parse('\u2716')).css('cursor', 'pointer').css('margin-right', '5px').addClass('user-remove')
+				)
+			);
+		});
+		render_preview();
+	})
+}
+
+$('#users-to-migrate').on('click', '.user-remove', function () {
+	$(this).parent().remove();
+	render_preview();
+})
+
+source_idp.change(query);
+domain.keyup(query);
+subject.keyup(render_preview);
+template.keyup(render_preview);
+query();
+render_preview();
+</script>
 {% endblock %}

@@ -149,7 +149,7 @@ def list_users():
 
     # or domain?
     try:
-        filters.append('userName co "@{0}"'.format(request.args['domain']))
+        filters.append('userName co "{0}"'.format(request.args['domain']))
     except KeyError:
         pass
 

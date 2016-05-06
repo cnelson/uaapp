@@ -197,7 +197,7 @@ class TestAPIv1(unittest.TestCase):
                 m.users.assert_called_with('origin eq "foo"')
 
     def test_users_good_domains(self):
-        """/users with origin"""
+        """/users with domain"""
 
         m = Mock()
         m.users.return_value = {'resources': [{'userName': 'foo@bar.gov'}, {'userName': 'bar.gov@example.com'}]}
@@ -213,7 +213,7 @@ class TestAPIv1(unittest.TestCase):
                 # bar.gov@example.com should be filtered out
                 assert len(json.loads(rv.data.decode('utf-8'))['resources']) == 1
 
-                m.users.assert_called_with('userName co "@bar.gov"')
+                m.users.assert_called_with('userName co "bar.gov"')
 
     def test_users_good_origin_and_domains(self):
         """/users with origin and domain"""
@@ -225,7 +225,7 @@ class TestAPIv1(unittest.TestCase):
                 rv = c.get('/api/v1/users?origin=foo&domain=bar')
 
                 assert rv.status_code == 200
-                m.users.assert_called_with('origin eq "foo" and userName co "@bar"')
+                m.users.assert_called_with('origin eq "foo" and userName co "bar"')
 
     def test_migrate_no_user(self):
         """/migrate returns 400 when no user id is provided"""
