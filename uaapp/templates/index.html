@@ -2,6 +2,7 @@
 
 {% block content %}
 <div>
+<form method="post" action="{{url_for('ui.confirm')}}">
 
 <p>
 Migrate users from the 
@@ -22,7 +23,6 @@ IDP
 </p>
 
 <h3>Users to be migrated:</h3>
-<form method="post" action="{{url_for('ui.confirm')}}">
 <div id="users-to-migrate"></div>
 
 <h3>Provision a new account for them in:</h3>

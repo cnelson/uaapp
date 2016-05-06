@@ -1,0 +1,127 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+<div>
+<h3>Are you sure you want to migrate the following users from <strong>{{source_idp}}</strong> to <strong>{{target_idp}}</strong>:</h3>
+{% for user in users %}
+<p id="{{user.id}}">{{user.userName}}</p>
+{% endfor %}
+</div>
+
+{% if provision %}
+<h3>and create an account for them in <strong>{{provision}}</strong></h3>
+{% endif %}
+
+{% if send_email %}
+<h3>and email them this notification:</h3>
+<pre>
+Subject: {{subject}}
+
+{{template}}
+</pre>
+{% endif %}
+
+<div id="controls">
+<input class="island-button" type="button" id="migrate" value="Migrate {{users|length}} Users" />
+<form  method="get"  action="{{url_for('ui.index')}}">
+<input class="island-button" type="submit" value="Cancel Migration" />
+</form>
+</div>
+</div>
+
+<script>
+
+var users = {{userids|tojson}};
+
+var target_idp = {{target_idp|tojson}};
+
+var provision = {{provision|tojson}};
+
+var send_email = {{send_email|tojson}};
+var subject = {{subject|tojson}};
+var template = {{template|tojson}};
+
+
+function p(user_id) {
+	if (provision) {
+		console.log('Provisioning', user_id);
+		return $.post('{{url_for('api_v1.provision_user')}}', {'id': user_id, 'provider': provision})
+	} else {
+		return $.when()
+	}
+}
+
+function m(user_id) {
+	console.log('Migrating', user_id)
+	return $.post('{{url_for('api_v1.migrate_user')}}', {'id': user_id, 'origin': target_idp})
+}
+
+function e(user_id) {
+	if (send_email) {
+		console.log('Emailing', user_id)
+
+		return $.post('{{url_for('api_v1.email_user')}}',{'id': user_id, 'subject': subject, 'body': template, 'send': '1'})
+	} else {
+		return $.when()
+	}
+}
+
+
+$('#migrate').on('click', function() {
+	$('#controls').empty().append(
+		$('<h2/>').html('<strong>Migration in progress.  Do not close this window.</strong>')
+	)
+
+	function migrate(user, success, fail) {
+		console.log('Migratring', user)
+		p(user).then(
+			function() {
+				m(user).then(
+					function() {
+						e(user).then(
+							function() {
+								success(user)
+							},
+							function() {
+								fail('email', user)
+							}
+						)
+					},
+					function () {
+						fail('migrate', user)
+					}
+				)
+			},
+			function () {
+				fail('provision', user)
+			}
+		)
+	}
+
+	function fail(what, user) {
+		$('#'+user).addClass('error')
+		console.log('Failed to', what, user)
+		$('#controls').empty().append(
+			$('<h2/>').html('<strong class="error">Migration failed, checked the console.</strong>')
+		)
+	}
+
+	function nextUser(user) {
+		if (user) {
+			$('#'+user).addClass('success')
+		}
+		if (users.length) {
+			migrate(users.shift(), nextUser, fail)
+		} else {
+			$('#controls').empty().append(
+				$('<h2/>').html('<strong class="success">Migration Complete</strong>')
+			)			
+		}
+	}
+
+	nextUser();
+})
+
+</script>
+
+{% endblock %}

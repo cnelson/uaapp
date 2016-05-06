@@ -26,7 +26,20 @@ def confirm():
         # if provision is blank, then be explicit
         provision = False
 
-    user_ids = request.form.getlist('user_ids')
+    users = []
+    for uid in request.form.getlist('user_ids'):
+        users.append(g.uaac.get_user(uid))
+
+    return render_template('confirm.html',
+        users=users,
+        userids=[x['id'] for x in users],
+        source_idp=request.form['source_idp'],
+        target_idp=request.form['target_idp'],
+        provision=provision,
+        send_email=send_email,
+        subject=subject,
+        template=template
+    )
 
     return """
     Users: {4}<br>
