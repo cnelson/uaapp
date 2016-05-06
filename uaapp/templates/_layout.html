@@ -10,6 +10,10 @@
     <style>.header-image {background-image: url({{config.UAA_BASE_URL}}/resources/oss/images/product-logo.png);}</style>
 
     <style>
+        .alert {
+            max-width: 50%;
+            display: inline-block;
+        }
         .island-button {
             margin-bottom: 10px;
             max-width: 50%;
@@ -28,6 +32,16 @@
     </div>
 
     <div class="island">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-error">
+            <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
     {% block content %}{% endblock %}
     </div>
 </div>

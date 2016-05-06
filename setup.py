@@ -19,5 +19,13 @@ setup(
     install_requires=[
         'flask',
         'requests',
+    ],
+
+    test_suite='uaapp.tests',
+
+    tests_require=[
+        'blinker',
+        'httmock',
+        'mock'
     ]
 )
