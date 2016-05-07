@@ -1,0 +1,4 @@
+---
+applications:
+- name: uaapp
+  command: gunicorn -w 4 uaapp:app

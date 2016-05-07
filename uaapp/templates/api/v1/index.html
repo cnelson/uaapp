@@ -1,1 +1,103 @@
-API v1 DOX go here
+# UAAPP v1 API
+
+
+This is an UNSTABLE API and endpoints and parameters are likely to change.
+
+The methods provided here are intended to support the migration of users between UAA and external
+IDPs.  This is not intended to be a complete API interface to UAA or any external IDP
+
+
+### /
+
+Returns the contents of this document.
+
+
+
+### /idps
+
+Return a list of *active* IDPs from UAA
+
+#### Method: GET
+
+#### Parameters: None
+
+#### Returns:
+* 200: json object listing the IDPs
+* 502: UAA responded with an error
+
+
+### /users
+
+Return a list of users optionally filtered by the following params:
+
+
+#### Method: GET
+
+#### Parameters:
+* origin: Return only users who's origin matches
+* domain: Return only users who's domain matches
+
+Specifying both parameters is alllowed; this produces an AND query
+
+
+#### Returns:
+* 200: json object listing the users
+* 502: UAA responded with an error
+
+
+### /migrate
+
+Update a user's origin to a different provider.
+
+
+#### Method: POST
+
+#### Parameters:
+* id: The UAA user id of the user to migrate
+* origin: The new origin for the user
+
+#### Returns:
+* 200: json object describing the migrated user
+* 400: A required parameter (id or origin) was missing from the request
+* 404: The user_id or origin provided does not exist
+* 502: UAA raised an error when attempting to update the user's origin
+
+
+### /provision
+
+Copy a user from UAA to an external provider.
+
+####  Method: POST
+
+#### Parameters:
+* id: The UAA user id of the user that will be copied to an external IDP
+* provider: The exteral IDP
+
+#### Returns:
+* 201: The user was provisioned in the external provider, the Location: header will reference the new resource
+* 400: A required parameter (id or provider) was missing from the request
+* 404: The user_id or provider does not exist
+* 502: UAA raised an error when attempting to update the user's origin
+
+
+### /email
+
+Send a notification email to a user.
+
+
+#### Method: POST
+
+#### Parameters:
+* id: The UAA user id of the user who will receive the temail
+* subject: The subject of the email
+* body: The body of the email
+* send: If set, the email will be delivered, if not, a preview will be returned
+
+The subject and body are processed as Jinja2 templates, with the user's details available as 'user' for use in the template.  For example: "Hello {% raw %}{{user.userName}}{% endraw %}" would inject the user's userName field into the output.
+
+#### Returns:
+* 200: A preview of the email to be sent
+* 202: The email was queued for delivery
+* 400: A required parameter (id, subject, body) was missing from the request, or the subject or body templates could not be rendered.
+* 404: The user_id does not exist
+* 502: Unable to queue the email for delivery

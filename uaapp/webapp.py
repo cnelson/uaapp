@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import os
 try:
     import urlparse
 except ImportError:  # py3 # pragma: no cover
@@ -19,10 +18,13 @@ def create_app():
     app.config.from_object('uaapp.default_settings')
 
     try:
+        app.config.from_object('uaapp.settings')
+    except ImportError:
+        pass
+
+    try:
         app.config.from_envvar('UAAPP_SETTINGS')
-        print("Using settings from {0}".format(os.environ['UAAPP_SETTINGS']))
-    except RuntimeError:
-        print("Using default settings")
+    except (OSError, RuntimeError):
         pass
 
     app.config['PROVIDERS'] = {}

@@ -17,6 +17,7 @@ setup(
     packages=find_packages(),
 
     install_requires=[
+        'gunicorn',
         'flask',
         'requests',
     ],

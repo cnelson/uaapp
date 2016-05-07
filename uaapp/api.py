@@ -7,7 +7,7 @@ IDPs.  This is not intended to be a complete API interface to UAA or any externa
 
 
 Note:
-    This blueprint excepts that the UAAC oauth flow has already been completed, and that
+    This blueprint expects that the UAAC oauth flow has already been completed, and that
     g.uaac has been initialized to a uaapp.clients.uaa.UAAClient
 """
 
@@ -23,7 +23,7 @@ v1 = Blueprint('api_v1', __name__)
 
 
 class APIError(Exception):
-    """A Ggneric class for API errors
+    """A Generic class for API errors
 
     Attributes:
         status_code(int): The HTTP status code to return
@@ -95,8 +95,8 @@ def check_uaac():
 
 @v1.route('/')
 def index():
-    """Returns a human readable HTML page with API documentation"""
-    return render_template('api/v1/index.html')
+    """Returns the contents of this document"""
+    return Response(render_template('api/v1/index.html'), mimetype='text/plain')
 
 
 @v1.route('/idps')

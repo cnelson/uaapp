@@ -1,11 +1,20 @@
 from flask import Blueprint, session, redirect, url_for, render_template, g, current_app, request
 
+from uaapp.clients import UAAError
+
 ui = Blueprint('ui', __name__)
 
 
 @ui.route('/')
 def index():
-    return render_template('index.html', idps=g.uaac.idps(), providers=current_app.config['PROVIDERS'].keys())
+    try:
+        return render_template(
+            'index.html',
+            idps=g.uaac.idps(),
+            providers=current_app.config['PROVIDERS'].keys()
+        )
+    except UAAError as exc:
+        return render_template('error.html', message=str(exc))
 
 
 @ui.route('/logout')
